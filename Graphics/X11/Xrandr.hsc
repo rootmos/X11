@@ -59,7 +59,8 @@ module Graphics.X11.Xrandr (
   xrrConfigureOutputProperty,
   xrrChangeOutputProperty,
   xrrGetOutputProperty,
-  xrrDeleteOutputProperty
+  xrrDeleteOutputProperty,
+  xrrSetCrtcConfig
   ) where
 
 import Foreign
@@ -712,3 +713,15 @@ peekCArrayIO n = join . liftM2 peekCArray n
 
 peekCStringLenIO :: IO CInt -> IO (Ptr CChar) -> IO String
 peekCStringLenIO n p = liftM2 (,) p (fmap fromIntegral n) >>= peekCStringLen
+
+xrrSetCrtcConfig :: Display -> XRRScreenResources -> RRCrtc -> Time -> CInt -> CInt -> RRMode -> Rotation -> [RROutput] -> IO Status
+xrrSetCrtcConfig dpy sr crtc time x y mode rot outputs =
+    withPool $ \pool -> pooledMalloc pool >>= \srp -> do
+        poke srp sr
+        case outputs of
+          [] -> do
+              cXRRSetCrtcConfig dpy srp crtc time x y mode rot nullPtr 0
+          _ -> withArrayLen outputs (\outputsLength ptrOutput -> do
+                    cXRRSetCrtcConfig dpy srp crtc time x y mode rot ptrOutput (fromIntegral outputsLength))
+foreign import ccall "XRRSetCrtcConfig"
+    cXRRSetCrtcConfig :: Display -> Ptr XRRScreenResources -> RRCrtc -> Time -> CInt -> CInt -> RRMode -> Rotation -> Ptr RROutput -> CInt -> IO Status

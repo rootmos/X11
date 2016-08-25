@@ -7,3 +7,4 @@ configure
 include/HsX11Config.h
 include/HsX11Config.h.in
 include/X11_extras_config.h
+.stack-work

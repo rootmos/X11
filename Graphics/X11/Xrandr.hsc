@@ -60,7 +60,8 @@ module Graphics.X11.Xrandr (
   xrrChangeOutputProperty,
   xrrGetOutputProperty,
   xrrDeleteOutputProperty,
-  xrrSetCrtcConfig
+  xrrSetCrtcConfig,
+  xrrSetScreenSize
   ) where
 
 import Foreign
@@ -725,3 +726,9 @@ xrrSetCrtcConfig dpy sr crtc time x y mode rot outputs =
                     cXRRSetCrtcConfig dpy srp crtc time x y mode rot ptrOutput (fromIntegral outputsLength))
 foreign import ccall "XRRSetCrtcConfig"
     cXRRSetCrtcConfig :: Display -> Ptr XRRScreenResources -> RRCrtc -> Time -> CInt -> CInt -> RRMode -> Rotation -> Ptr RROutput -> CInt -> IO Status
+
+xrrSetScreenSize :: Display -> Window -> CInt -> CInt -> CInt -> CInt -> IO ()
+xrrSetScreenSize width height widthInMillimeters heightInMillimeters =
+    cXRRSetScreenSize width height widthInMillimeters heightInMillimeters
+foreign import ccall "XRRSetScreenSize"
+    cXRRSetScreenSize :: Display -> Window -> CInt -> CInt -> CInt -> CInt -> IO ()
